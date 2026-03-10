@@ -12,7 +12,7 @@ import UseEffectDemo from './components/UseEffectDemo'
 import WrappingChild from "./components/WrappingChild";
 import Cart from "./pages/Cart";
 import UseRefDemo from "./components/UseRefDemo";
-import UseMemoDemo from "./components/UseMemo";
+// import UseMemoDemo from "./components/UseMemo";
 import ProductDetails from "./components/ProductDetails";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Dashboard from "./pages/Dashboard";
@@ -68,10 +68,10 @@ const router = createBrowserRouter([
                 path: "learnuseref",
                 element: <UseRefDemo />
             },
-            {
-                path: "learnmemo",
-                element: <UseMemoDemo />
-            },
+            // {
+            //     path: "learnmemo",
+            //     element: <UseMemoDemo />
+            // },
             {
                 path: "products/:id",
                 element: <ProductDetails />
