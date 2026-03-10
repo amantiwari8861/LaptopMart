@@ -1,0 +1,23 @@
+@import "tailwindcss";
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer base
+{
+  .btn{
+    @apply px-4 py-2 rounded cursor-pointer
+  }
+  .btn-primary{
+    @apply bg-blue-500 hover:bg-blue-400
+  }
+  .btn-success{
+    @apply bg-green-500 hover:bg-green-400
+  }
+}
