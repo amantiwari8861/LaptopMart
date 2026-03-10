@@ -2,5 +2,12 @@
   "routes": [
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
+  ],
+
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "http://34.235.137.143:5000/api/$1"
+    }
   ]
 }
