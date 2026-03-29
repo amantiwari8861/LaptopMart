@@ -16,10 +16,10 @@ const GenerateImage = () => {
                 }),
             });
 
-            const { b64_json } = await res.json();
-            console.log(b64_json);
+            const { base64 } = await res.json();
+            console.log(base64);
 
-            setImageBase64(b64_json);
+            setImageBase64(base64);
         }
         catch (e) {
             console.log(e);

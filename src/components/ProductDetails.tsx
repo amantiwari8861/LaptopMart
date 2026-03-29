@@ -305,7 +305,14 @@ type Review = {
 =========================== */
 
 const initialReviews: Review[] = [
-    
+    {
+        id: 100,
+        title: "You",
+        date: new Date().toLocaleDateString(),
+        rating: 5,
+        comment: "Wrost Product",
+        sentiment: "Neutral",
+    }
 ];
 
 const sentimentStyles: Record<Sentiment, string> = {
@@ -363,6 +370,7 @@ const ProductDetails = () => {
             });
 
             const data = await res.json();
+            console.log(data);
 
             const newReview: Review = {
                 id: Date.now(),
@@ -372,8 +380,8 @@ const ProductDetails = () => {
                 comment,
                 sentiment: data.sentiment as Sentiment,
             };
-
             setReviews((prev) => [newReview, ...prev]);
+            console.log(reviews);
             setComment("");
         } catch (err) {
             console.error(err);
