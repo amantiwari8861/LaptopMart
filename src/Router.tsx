@@ -87,6 +87,11 @@ const router = createBrowserRouter([
                 element:<GenerateImage />
 
             },
+            
+      {
+        path: "dashboard/admin",
+        element: <AdminDashboard />,
+      },
             {
                 path: "*",
                 element: <NotFound />
