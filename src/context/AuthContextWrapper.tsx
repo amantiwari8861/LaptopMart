@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { apiService } from "../hooks/apiService";
 import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
-import { useNavigate } from "react-router";
 
 /* =========================
    1. Define User Type

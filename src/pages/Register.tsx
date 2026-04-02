@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import axios from "axios";
+import { useNavigate } from "react-router";
 
 // validation schema
 const registerSchema = z.object({
@@ -24,6 +25,7 @@ const registerSchema = z.object({
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const Register = () => {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -35,11 +37,13 @@ const Register = () => {
 
   const submitHandler = async (data: RegisterFormData) => {
     const res = await registerUser(data);
-    if (res?.status) {
+    if (res?.status===201) {
+      const data = res.data;
+      console.log(data);
       console.log("user registered:", data);
       toast.success("user registered successfully!");
       reset();
-
+      navigate("/login");
     }
   };
 
@@ -55,9 +59,7 @@ const Register = () => {
         }
       );
       console.log(res);
-      const data = res.data;
-      console.log(data);
-      return data;
+      return res;
     }
     catch (error) {
       console.log(error.message);
