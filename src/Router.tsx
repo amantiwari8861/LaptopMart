@@ -17,6 +17,7 @@ import ProductDetails from "./components/ProductDetails";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Dashboard from "./pages/Dashboard";
 import GenerateImage from "./pages/GenerateImage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const router = createBrowserRouter([
     {
@@ -84,14 +85,15 @@ const router = createBrowserRouter([
             },
             {
                 path: "generate-image",
-                element:<GenerateImage />
+                element: <GenerateImage />
 
             },
-            
-      {
-        path: "dashboard/admin",
-        element: <AdminDashboard />,
-      },
+            {
+                path: "dashboard/admin",
+                element: <ProtectedRoutes>
+                    <AdminDashboard />
+                </ProtectedRoutes>,
+            },
             {
                 path: "*",
                 element: <NotFound />

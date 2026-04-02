@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
 import useAuth from "../hooks/useAuth";
-import { useNavigate } from "react-router";
+import { Navigate } from "react-router";
 
 type LoginFormState = {
   email: string;
@@ -14,10 +13,8 @@ const initStates: LoginFormState = {
 };
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login,isLoggedIn } = useAuth();
   const [formData, setFormData] = useState<LoginFormState>(initStates);
-
   const handleInpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
@@ -27,17 +24,16 @@ const Login = () => {
     }));
   };
 
-  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("form submitted! ", formData);
     setFormData(initStates);
-    login(formData.email, formData.password);
-    toast.success("logged in succesfully!");
-    navigate("/dashboard");
+    await login(formData.email, formData.password);
+    console.log(isLoggedIn);
   };
 
   return (
     <div className="flex justify-center items-center my-12">
+      {isLoggedIn && <Navigate to="/dashboard/admin" />}
       <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
         <form className="space-y-6" onSubmit={submitHandler}>
           <h5 className="text-xl font-medium text-gray-900 dark:text-white">

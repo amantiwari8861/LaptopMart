@@ -7,8 +7,8 @@ import ChatBot from "./components/ChatBot";
 function Layout() {
     const location = useLocation();
     return <>
-        <ToastContainer />
-        <ChatBot/>
+        <ToastContainer position="top-center" />
+        <ChatBot />
         <Navbar />
         <Outlet />
         {

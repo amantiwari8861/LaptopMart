@@ -1,5 +1,9 @@
 import { createContext, useState } from "react";
 import type { ReactNode } from "react";
+import { apiService } from "../hooks/apiService";
+import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
+import { useNavigate } from "react-router";
 
 /* =========================
    1. Define User Type
@@ -14,10 +18,9 @@ export interface User {
    2. Initial User Object
 ========================= */
 const initUser: User = {
-  name: "Aman Tiwari",
-  email: "amantiwari@gmail.com",
-  image:
-    "https://media.licdn.com/dms/image/v2/D5603AQF6Jg0zTVWBzQ/profile-displayphoto-scale_200_200/B56ZjazRsiH8Ac-/0/1756017532600?e=2147483647&v=beta&t=ZjjwETYcdYZ464B7MlBjEaAzoNvkmWwalikR8gYsnUE",
+  name: "",
+  email: "",
+  image: "https://media.licdn.com/dms/image/v2/D5603AQF6Jg0zTVWBzQ/profile-displayphoto-scale_200_200/B56ZjazRsiH8Ac-/0/1756017532600?e=2147483647&v=beta&t=ZjjwETYcdYZ464B7MlBjEaAzoNvkmWwalikR8gYsnUE",
 };
 
 /* =========================
@@ -42,6 +45,14 @@ interface AuthContextWrapperProps {
   children: ReactNode;
 }
 
+type LoginResponse = {
+  token: string;
+};
+type UserResponse = {
+  name: string;
+  email: string;
+};
+
 /* =========================
    6. Provider Component
 ========================= */
@@ -51,17 +62,52 @@ const AuthContextWrapper = ({
   const [isLoggedIn, setLoggedIn] = useState<boolean>(false);
   const [user, setUser] = useState<User>(initUser);
 
-  const login = async (
-    email: string,
-    password: string
-  ): Promise<void> => {
-    // Example authentication logic
-    setUser({
-      ...initUser,
-      email,
-    });
+  const login = async (email: string, password: string): Promise<void> => {
+    try {
+      // 1️⃣ Authenticate user
+      const loginData = await apiService.post<LoginResponse>(
+        "/auth/login",
+        { email, password }
+      );
 
-    setLoggedIn(true);
+      // Optional: store token if not using cookies
+      // localStorage.setItem("token", loginData.token);
+
+      // 2️⃣ Fetch user details
+      const userData = await apiService.get<UserResponse>(
+        `/api/v1/users/email/${email}`
+      );
+
+      // 3️⃣ Update state safely
+      setUser((prev) => ({
+        ...prev,
+        ...userData,
+      }));
+
+      setLoggedIn(true);
+      toast.success("logged in succesfully!");
+
+    } catch (err) {
+      const error = err as AxiosError<{ message?: string }>;
+      console.log(error.response);
+
+      // Centralized error handling
+      const message =
+        error.response?.data?.error ||
+        error.message ||
+        "Login failed. Please try again.";
+
+      // Handle specific status codes if needed
+      if (error.response?.status === 401) {
+        toast.error("Invalid credentials");
+      } else if (error.response?.status === 404) {
+        toast.error("User not found");
+      } else {
+        toast.error(message);
+      }
+
+      setLoggedIn(false);
+    }
   };
 
   const logout = async (): Promise<void> => {
