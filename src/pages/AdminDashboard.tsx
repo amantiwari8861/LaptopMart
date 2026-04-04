@@ -14,7 +14,7 @@ const AdminDashboard = () => {
     async function fetchUsers() {
       try {
         const data = await apiService.get("/api/v1/users");
-        setUsers(data);
+        setUsers(data as any[]);
         console.log(data);
       } catch (error: any) {
         console.log(error.message);

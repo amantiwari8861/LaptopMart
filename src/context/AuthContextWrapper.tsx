@@ -92,7 +92,7 @@ const AuthContextWrapper = ({
 
       // Centralized error handling
       const message =
-        error.response?.data?.error ||
+        error.response?.data?.message ||
         error.message ||
         "Login failed. Please try again.";
 
