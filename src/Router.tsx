@@ -78,7 +78,7 @@ const router = createBrowserRouter([
                 element: <ProductDetails />
             },
             {
-                path: "dashboard",
+                path: "dashboard/user",
                 element: <ProtectedRoutes>
                     <Dashboard />
                 </ProtectedRoutes>
@@ -94,6 +94,12 @@ const router = createBrowserRouter([
                     <AdminDashboard />
                 </ProtectedRoutes>,
             },
+            // {
+            //     path: "dashboard",
+            //     element: <>
+            //         <AdminDashboard />
+            //     </>,
+            // },
             {
                 path: "*",
                 element: <NotFound />

@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { apiService } from "../hooks/apiService";
+import EditModal from "../components/EditModal";
+import { toast } from "react-toastify";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);
-
-  // Datatable states
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [userSelected, setUserSelected] = useState<any>(null);
+  // Datatable states 
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,10 +68,32 @@ const AdminDashboard = () => {
     return sortConfig.direction === "asc" ? " ▲" : " ▼";
   };
 
+  const deleteUser = useCallback(async (id: string) => {
+    await apiService.delete(`/api/v1/users/${id}`);
+    setUsers(users.filter((user) => user._id !== id));
+    toast.success("User deleted successfully");
+  }, [users]);
+
+  const editUser = useCallback(async (userToEdit: any) => {
+    console.log("editing...", userToEdit);
+
+    await apiService.put(`/api/v1/users/${userToEdit._id}`, userToEdit);
+    setUsers(users.map((user) => user._id === userToEdit._id ? { ...user, ...userToEdit } : user));
+    setIsEditModalOpen(false);
+    setUserSelected(null);
+    toast.success("User updated successfully");
+  }, [users]);
+
+
+  const openEditModal = useCallback((userSelected: any) => {
+    setUserSelected(userSelected);
+    setIsEditModalOpen(true);
+  }, []);
+
   return (
     <div className="container mx-auto p-4 md:p-8">
       <h1 className="text-3xl text-center font-bold mb-8 text-gray-800">Admin Dashboard</h1>
-
+      {isEditModalOpen && <EditModal editUser={editUser} setIsEditModalOpen={setIsEditModalOpen} userSelected={userSelected} />}
       <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
         {/* Datatable Controls */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -141,6 +166,8 @@ const AdminDashboard = () => {
                     user={user}
                     key={user._id}
                     index={indexOfFirstEntry + index}
+                    deleteUser={deleteUser}
+                    openEditModal={openEditModal}
                   />
                 ))
               ) : (
@@ -190,8 +217,8 @@ const AdminDashboard = () => {
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${currentPage === page
-                        ? 'bg-blue-600 text-white border-transparent shadow-sm'
-                        : 'border border-transparent text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-600 text-white border-transparent shadow-sm'
+                      : 'border border-transparent text-gray-700 hover:bg-gray-100'
                       }`}
                   >
                     {page}
@@ -214,7 +241,7 @@ const AdminDashboard = () => {
   );
 };
 
-const DtRow = ({ user, index }: { user: any, index: number }) => {
+const DtRow = React.memo(({ user, index, deleteUser, openEditModal }: { user: any, index: number, deleteUser: (id: string) => void, openEditModal: () => void }) => {
   return (
     <tr className="border-b last:border-0 hover:bg-blue-50/50 transition-colors">
       <td className="p-4 text-sm text-gray-600">{index + 1}</td>
@@ -223,22 +250,29 @@ const DtRow = ({ user, index }: { user: any, index: number }) => {
       <td className="p-4 text-sm text-gray-600">{user.email}</td>
       <td className="p-4">
         <span className={`px-2.5 py-1 rounded-full text-xs font-medium tracking-wide ${user.role === 'admin'
-            ? 'bg-purple-100 text-purple-700 border border-purple-200'
-            : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+          ? 'bg-purple-100 text-purple-700 border border-purple-200'
+          : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
           }`}>
           {user.role}
         </span>
       </td>
       <td className="p-4 flex gap-2">
-        <button className="bg-indigo-50 border border-indigo-200 hover:bg-indigo-600 hover:text-white text-indigo-600 px-3 py-1.5 rounded-md text-sm font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <button className="bg-indigo-50 border border-indigo-200 hover:bg-indigo-600 hover:text-white text-indigo-600 px-3 py-1.5 rounded-md text-sm font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+          onClick={() => openEditModal(user)}
+          data-modal-target="edit-modal"
+          data-modal-toggle="edit-modal"
+        >
           Edit
         </button>
-        <button className="bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-md text-sm font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500">
+        <button className="bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white text-red-600 px-3 py-1.5 rounded-md text-sm font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
+          onClick={() => deleteUser(user._id)}
+        >
           Delete
         </button>
       </td>
     </tr>
+
   );
-};
+});
 
 export default AdminDashboard;

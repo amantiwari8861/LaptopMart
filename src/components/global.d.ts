@@ -11,3 +11,9 @@ type Product = {
   discount: number;
   deliveryDate: string;
 };
+type User = {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+};
