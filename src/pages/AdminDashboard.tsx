@@ -241,7 +241,7 @@ const AdminDashboard = () => {
   );
 };
 
-const DtRow = React.memo(({ user, index, deleteUser, openEditModal }: { user: any, index: number, deleteUser: (id: string) => void, openEditModal: () => void }) => {
+const DtRow = React.memo(({ user, index, deleteUser, openEditModal }: { user: any, index: number, deleteUser: (id: string) => void, openEditModal: (user: User) => void }) => {
   return (
     <tr className="border-b last:border-0 hover:bg-blue-50/50 transition-colors">
       <td className="p-4 text-sm text-gray-600">{index + 1}</td>
