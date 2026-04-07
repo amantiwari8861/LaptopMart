@@ -17,3 +17,24 @@ type User = {
   email: string;
   role: string;
 };
+type Product = {
+  id: number;
+  title: string;
+  image: string;
+  price: number;
+  mrp: number;
+  discount: number;
+  deliveryDate: string;
+  rating?: number;
+};
+
+type Sentiment = "Positive" | "Negative" | "Neutral";
+
+type Review = {
+  id: number;
+  title: string;
+  date: string;
+  rating: number;
+  comment: string;
+  sentiment: Sentiment;
+};

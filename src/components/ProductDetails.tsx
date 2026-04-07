@@ -274,35 +274,8 @@ const products: Product[] = [
 
 import { useParams } from "react-router";
 import { useMemo, useState } from "react";
+import PayButton from "./PayButton";
 
-/* ===========================
-   TYPES
-=========================== */
-
-type Product = {
-    id: number;
-    title: string;
-    image: string;
-    price: number;
-    mrp: number;
-    discount: number;
-    deliveryDate: string;
-};
-
-type Sentiment = "Positive" | "Negative" | "Neutral";
-
-type Review = {
-    id: number;
-    title: string;
-    date: string;
-    rating: number;
-    comment: string;
-    sentiment: Sentiment;
-};
-
-/* ===========================
-   STATIC REVIEWS (INITIAL)
-=========================== */
 
 const initialReviews: Review[] = [
     {
@@ -321,11 +294,13 @@ const sentimentStyles: Record<Sentiment, string> = {
     Neutral: "bg-yellow-100 text-yellow-700 border-yellow-300",
 };
 
-/* ===========================
-   MAIN COMPONENT
-=========================== */
-
 const API_URL = import.meta.env.VITE_BACKEND_API_URL;
+
+const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+    }).format(price);
 
 const ProductDetails = () => {
     const { id } = useParams<{ id: string }>();
@@ -334,16 +309,107 @@ const ProductDetails = () => {
         return products.find((p) => p.id === Number(id)) ?? null;
     }, [id]);
 
+    if (!product)
+        return (
+            <div className="flex items-center justify-center h-screen text-lg font-semibold">
+                Product not found
+            </div>
+        );
+
+    return (
+        <div className="max-w-7xl mx-auto p-6 grid lg:grid-cols-12 gap-10">
+
+            {/* LEFT - IMAGE */}
+            <div className="lg:col-span-5">
+                <div className="bg-white p-4 rounded-2xl shadow-sm border">
+                    <img
+                        src={product.image}
+                        alt={product.title}
+                        className="w-full h-[420px] object-contain rounded-xl"
+                    />
+                </div>
+            </div>
+
+            {/* MIDDLE - DETAILS */}
+            <div className="lg:col-span-4 space-y-4">
+                <ShowProductDetails product={product} />
+                <ReviewSection product={product} />
+            </div>
+
+            {/* RIGHT - BUY BOX */}
+            <div className="lg:col-span-3">
+                <BuyBox product={product} />
+            </div>
+        </div>
+    );
+};
+
+export default ProductDetails;
+
+
+const ShowProductDetails = ({ product }: { product: Product }) => {
+    const discountPrice = Math.round(
+        product.price - (product.price * Number(product.discount)) / 100
+    );
+
+    return (
+        <div className="bg-white p-5 rounded-2xl border shadow-sm space-y-3">
+
+            {/* Title */}
+            <h1 className="text-xl font-semibold text-gray-800 leading-snug">
+                {product.title}
+            </h1>
+
+            {/* Rating */}
+            <div className="flex items-center gap-2">
+                <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">
+                    {product?.rating || 0} ★
+                </span>
+                <span className="text-sm text-gray-500">
+                    (1,245 ratings)
+                </span>
+            </div>
+
+            {/* Price */}
+            <div className="space-y-1">
+                <div className="text-3xl font-bold text-gray-900">
+                    {formatPrice(discountPrice)}
+                </div>
+
+                <div className="flex items-center gap-3 text-sm">
+                    <span className="line-through text-gray-400">
+                        {formatPrice(product.price)}
+                    </span>
+                    <span className="text-green-600 font-medium">
+                        {product.discount}% off
+                    </span>
+                </div>
+            </div>
+
+            {/* Delivery */}
+            <div className="text-sm text-gray-600">
+                FREE delivery <span className="font-medium">Tomorrow</span>
+            </div>
+
+            {/* Highlights */}
+            <ul className="text-sm text-gray-700 list-disc pl-5 space-y-1">
+                <li>1 Year Warranty</li>
+                <li>7 Days Replacement</li>
+                <li>Secure Transaction</li>
+            </ul>
+        </div>
+    );
+};
+const ReviewSection = ({ product }: { product: Product }) => {
+
+
     const [reviews, setReviews] = useState<Review[]>(initialReviews);
-    const [filter, setFilter] = useState<Sentiment | "All">("All");
     const [comment, setComment] = useState("");
-    const [loading, setLoading] = useState(false);
-
-    if (!product) return <div>Product not found</div>;
-
+    const [filter, setFilter] = useState<Sentiment | "All">("All");
     /* ===========================
-       FILTERED REVIEWS
-    =========================== */
+        FILTERED REVIEWS
+        =========================== */
+    const [loading, setLoading] = useState(false);
 
     const filteredReviews = useMemo(() => {
         if (filter === "All") return reviews;
@@ -390,95 +456,110 @@ const ProductDetails = () => {
         setLoading(false);
     };
 
-    /* ===========================
-       UI
-    =========================== */
-
-    return (
-        <div className="max-w-6xl mx-auto p-6 grid md:grid-cols-6 gap-10">
-
-            {/* Product Image */}
-            <div className="img-container col-span-2">
-                <img
-                    src={product.image}
-                    alt={product.title}
-                    className="rounded-2xl shadow-md"
-                />
-                {/* Product Info */}
-                {/* <p className="text-gray-600 mb-4">{id}</p> */}
-                <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
-                <p className="text-xl font-semibold mb-6">${product.price}</p>
-
+    return <>
+        {/* Review Section */}
+        <div className="mt-8">
+            {/* Filter Buttons */}
+            <div className="flex gap-3 mb-6">
+                {["All", "Positive", "Neutral", "Negative"].map((type) => (
+                    <button
+                        key={type}
+                        onClick={() => setFilter(type as any)}
+                        className={`px-4 py-2 rounded-full border text-sm font-medium transition
+                  ${filter === type
+                                ? "bg-indigo-600 text-white border-indigo-600"
+                                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                            }`}
+                    >
+                        {type}
+                    </button>
+                ))}
             </div>
 
-            <div className="col-span-4">
-
-                {/* Review Section */}
-                <div className="mt-8">
-                    {/* Filter Buttons */}
-                    <div className="flex gap-3 mb-6">
-                        {["All", "Positive", "Neutral", "Negative"].map((type) => (
-                            <button
-                                key={type}
-                                onClick={() => setFilter(type as any)}
-                                className={`px-4 py-2 rounded-full border text-sm font-medium transition
-                  ${filter === type
-                                        ? "bg-indigo-600 text-white border-indigo-600"
-                                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-                                    }`}
+            {/* Review List */}
+            <div className="space-y-4">
+                {filteredReviews.map((review) => (
+                    <div
+                        key={review.id}
+                        className="p-4 border rounded-xl shadow-sm bg-white"
+                    >
+                        <div className="flex justify-between mb-2">
+                            <h4 className="font-semibold">{review.title}</h4>
+                            <span
+                                className={`px-2 py-1 text-xs rounded-full border ${sentimentStyles[review.sentiment]}`}
                             >
-                                {type}
-                            </button>
-                        ))}
-                    </div>
+                                {review.sentiment}
+                            </span>
+                        </div>
 
-                    {/* Review List */}
-                    <div className="space-y-4">
-                        {filteredReviews.map((review) => (
-                            <div
-                                key={review.id}
-                                className="p-4 border rounded-xl shadow-sm bg-white"
-                            >
-                                <div className="flex justify-between mb-2">
-                                    <h4 className="font-semibold">{review.title}</h4>
-                                    <span
-                                        className={`px-2 py-1 text-xs rounded-full border ${sentimentStyles[review.sentiment]}`}
-                                    >
-                                        {review.sentiment}
-                                    </span>
-                                </div>
+                        <div className="text-yellow-500 text-sm mb-2">
+                            {"★".repeat(review.rating)}
+                            {"☆".repeat(5 - review.rating)}
+                        </div>
 
-                                <div className="text-yellow-500 text-sm mb-2">
-                                    {"★".repeat(review.rating)}
-                                    {"☆".repeat(5 - review.rating)}
-                                </div>
+                        <p className="text-sm text-gray-600">
+                            {review.comment}
+                        </p>
+                    </div>
+                ))}
+            </div>
+            {/* Comment Box */}
+            <div className="my-12 flex flex-col items-center">
+                <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Write your review..."
+                    className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500"
+                />
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="mt-3 px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition"
+                >
+                    {loading ? "Analyzing..." : "Submit Review"}
+                </button>
+            </div>
+        </div>
 
-                                <p className="text-sm text-gray-600">
-                                    {review.comment}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                    {/* Comment Box */}
-                    <div className="my-12 flex flex-col items-center">
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Write your review..."
-                            className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-indigo-500"
-                        />
-                        <button
-                            onClick={handleSubmit}
-                            disabled={loading}
-                            className="mt-3 px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition"
-                        >
-                            {loading ? "Analyzing..." : "Submit Review"}
-                        </button>
-                    </div>
-                </div>
+    </>
+}
+
+const BuyBox = ({ product }: { product: Product }) => {
+    const discountPrice = Math.round(
+        product.price - (product.price * Number(product.discount)) / 100
+    );
+
+    return (
+        <div className="sticky top-20 bg-white border rounded-2xl p-5 shadow-sm space-y-4">
+
+            <div className="text-2xl font-bold">
+                {formatPrice(discountPrice)}
+            </div>
+
+            <p className="text-sm text-green-600 font-medium">
+                In Stock
+            </p>
+
+            {/* Quantity */}
+            <select className="w-full border rounded-lg p-2 text-sm">
+                {[1, 2, 3, 4, 5].map((q) => (
+                    <option key={q}>Qty: {q}</option>
+                ))}
+            </select>
+
+            {/* Buttons */}
+            <button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded-lg transition">
+                Add to Cart
+            </button>
+
+            <button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition">
+                Buy Now
+            </button>
+            <PayButton amount={product.price} />
+            {/* Seller Info */}
+            <div className="text-xs text-gray-500">
+                Sold by <span className="font-medium">RetailNet</span>
             </div>
         </div>
     );
 };
-
-export default ProductDetails;
