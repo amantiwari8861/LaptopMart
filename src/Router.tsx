@@ -18,6 +18,7 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import Dashboard from "./pages/Dashboard";
 import GenerateImage from "./pages/GenerateImage";
 import AdminDashboard from "./pages/AdminDashboard";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const router = createBrowserRouter([
     {
@@ -93,6 +94,12 @@ const router = createBrowserRouter([
                 element: <ProtectedRoutes>
                     <AdminDashboard />
                 </ProtectedRoutes>,
+            },
+            {
+                path: "privacy-policy",
+                element:
+                    <PrivacyPolicy />
+                ,
             },
             // {
             //     path: "dashboard",
